@@ -11,8 +11,7 @@ body {
 
 /* dark mode looking scrollbar */
 ::-webkit-scrollbar {
-	width: 8px!important;
-}
+	width: 8px!important;}
 
 ::-webkit-scrollbar-track {
 	background: #555!important;
@@ -56,4 +55,7 @@ body {
 	60% {
 		transform: translate3d(4px, 0, 0);
 	}
+}
+.icon{
+	border-radius: 50%;
 }

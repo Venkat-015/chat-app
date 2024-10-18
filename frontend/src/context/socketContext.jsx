@@ -12,7 +12,7 @@ const [onlineUsers,setOnlineUsers]=useState([]);
 const{authUser}=useAuthContext();
 useEffect(()=>{
     if(authUser){
-        const socket=io("http://localhost:5000",{
+        const socket=io("https://chat-app-zpor.onrender.com/",{
             query:{
                 userId:authUser._id,
             },

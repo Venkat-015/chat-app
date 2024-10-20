@@ -1,9 +1,18 @@
 import express from "express";
+import upload from "../cloudinaryConfig.js";
 import { getMessage, sendMessage } from "../controllers/message.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 const router=express.Router();
 router.get("/:id",protectRoute,getMessage);
-router.post("/send/:id",protectRoute,sendMessage);
+router.post("/send/:id",protectRoute,(req,res,next)=>{
+    upload.single('file')(req, res, (err) => {
+        if (err) {
+          return res.status(400).json({ error: err.message });
+        }
+        next();
+      });
+    },
+    sendMessage);
 export default router;
 /*
 

@@ -14,6 +14,18 @@ const messageSchema=new mongoose.Schema({
         type:String,
         required:true,
     },
+    fileUrl: {
+        type: String, // URL of the uploaded file in Cloudinary
+    },
+    fileName: {
+        type: String, // Original name of the uploaded file
+    },
+    fileType: {
+        type: String, // MIME type (e.g., 'image/jpeg', 'application/pdf')
+    },
+    fileSize: {
+        type: Number, // Size of the file (optional, but could be useful)
+    },
 },{timestamps:true});
 const Message=mongoose.model("Message",messageSchema);
 export default Message;

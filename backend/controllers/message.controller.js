@@ -1,12 +1,42 @@
 import Converstaion from "../models/conversation.models.js";
 import Message from "../models/message.models.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
+//import { generateSignedUrl } from "../cloudinaryConfig.js";
+
+export const transformedFileUrl = (file) => {
+  // Apply the download transformation for all document and attachment types
+  const downloadableTypes = ['application/x-pdf','application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+  if (downloadableTypes.includes(file.mimetype)) {
+    // Apply Cloudinary download flag for these file types
+    return file.path.replace('/upload/', '/upload/fl_attachment/');
+  }
+
+  return file.path;  // Return the original path for other file types
+};
 
 export const sendMessage=async(req,res)=>{
     try{
+      //const fileUrl = req.file ? transformedFileUrl(req.file) : null;
        const {message}=req.body;
        const{id:receiverId}=req.params;
        const senderId=req.user._id;
+       let fileData={};
+       if(req.file){
+        const fileUrl = transformedFileUrl(req.file);
+        //const signedUrl = generateSignedUrl(req.file.public_id);
+        fileData = {
+          fileUrl, // Cloudinary URL
+          fileName: req.file.originalname, // Original file name
+          fileType: req.file.mimetype, // MIME type
+          fileSize: req.file.size, // File size (optional)
+      };}
+      //const finalMessage = message || (req.file ? 'File attached' : null);
+
+      // If both message and file are missing, return an error
+     /* if (!finalMessage && !req.file) {
+          return res.status(400).json({ error: "Message or file is required" });
+      };*/
       let conversation= await Converstaion.findOne({
         participants:{$all:[senderId,receiverId]},
        });
@@ -18,8 +48,12 @@ export const sendMessage=async(req,res)=>{
        const newMessage=new Message({
         senderId,
         receiverId,
-        message,
+        message:message || req.file?.originalname || ' ',
+        ...fileData,
        })
+
+        
+
        if(newMessage){
         conversation.messages.push(newMessage._id);
        }
@@ -55,100 +89,5 @@ catch(error){
         res.status(500).json({error:"Internal Server Error"});
 }
 };
-/*
 
-import Conversation from "../models/conversation.models.js";
-import Message from "../models/message.models.js";
-import { getReceiverSocketId, io } from "../socket/socket.js";
-import { storage } from "../firebase.js"; // Import Firebase storage setup
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { v4 as uuidv4 } from "uuid";
 
-// Function to upload file to Firebase
-const uploadFileToFirebase = async (file) => {
-  const fileExtension = file.originalname.split(".").pop(); // Get file extension
-  const fileName = `${uuidv4()}.${fileExtension}`; // Generate unique file name
-  const storageRef = ref(storage, `uploads/${fileName}`);
-
-  // Upload file to Firebase Storage
-  await uploadBytes(storageRef, file.buffer);
-
-  // Get the file's URL after upload
-  const fileUrl = await getDownloadURL(storageRef);
-  return fileUrl;
-};
-
-// Send Message Controller
-export const sendMessage = async (req, res) => {
-  try {
-    const { message } = req.body;
-    const { id: receiverId } = req.params;
-    const senderId = req.user._id;
-
-    // Find or create conversation
-    let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, receiverId] },
-    });
-    if (!conversation) {
-      conversation = await Conversation.create({
-        participants: [senderId, receiverId],
-      });
-    }
-
-    // Handle file upload (if any)
-    let fileUrl = null;
-    if (req.file) {
-      fileUrl = await uploadFileToFirebase(req.file); // Upload file and get URL
-    }
-
-    // Create new message with file URL (if file exists)
-    const newMessage = new Message({
-      senderId,
-      receiverId,
-      message,
-      fileUrl, // Save file URL in the message
-    });
-
-    if (newMessage) {
-      conversation.messages.push(newMessage._id);
-    }
-
-    // Save conversation and message
-    await Promise.all([conversation.save(), newMessage.save()]);
-
-    // Emit message via socket (with file URL if applicable)
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
-
-    res.status(201).json(newMessage);
-  } catch (error) {
-    console.log("Error in sendMessage controller:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-// Get Messages Controller
-export const getMessage = async (req, res) => {
-  try {
-    const { id: userToChatId } = req.params;
-    const senderId = req.user._id;
-
-    // Find conversation between sender and receiver
-    const conversation = await Conversation.findOne({
-      participants: { $all: [senderId, userToChatId] },
-    }).populate("messages");
-
-    if (!conversation) return res.status(200).json([]);
-
-    // Return messages, including file URLs if applicable
-    const messages = conversation.messages;
-
-    res.status(200).json(messages);
-  } catch (error) {
-    console.log("Error in getMessage controller:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-*/

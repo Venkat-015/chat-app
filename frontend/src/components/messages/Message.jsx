@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {useAuthContext} from "../../context/AuthContext";
 import { extractTime } from "../../utils/extractTime";
 import useConversation from "../../zustand/useConversation";
@@ -20,12 +21,19 @@ const Message = ({message}) => {
 
    switch (fileType) {
      case 'image':
+      const modalRef = useRef(null);
+
+      const openModal = () => {
+        if (modalRef.current) {
+          modalRef.current.showModal();
+        }
+      };
       return (
-        <div className="relative">
-          <img src={message.fileUrl} alt={message.fileName} className="max-w-xs max-h-40 rounded-lg cursor-pointer" onClick={() => window.my_modal.showModal()} />
+        <div className="relative max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+          <img src={message.fileUrl} alt={message.fileName} className="max-w-full h-auto rounded-lg cursor-pointer" onClick={openModal}/>
           
-          <dialog id="my_modal" className="modal">
-            <form method="dialog" className="modal-box">
+          <dialog ref={modalRef} className="modal">
+            <form method="dialog" className="modal-box p-0">
               <img src={message.fileUrl} alt={message.fileName} className="max-w-full max-h-full rounded-lg" />
               <div className="modal-action">
                 <button className="btn">Close</button>
@@ -36,7 +44,7 @@ const Message = ({message}) => {
       );
      case 'video':
        return (
-         <video controls className="max-w-xs max-h-40 rounded-lg">
+         <video controls className="max-w-full h-auto rounded-lg">
            <source src={message.fileUrl} type={message.fileType} />
            Your browser does not support the video tag.
          </video>

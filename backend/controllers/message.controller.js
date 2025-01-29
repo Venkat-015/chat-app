@@ -24,19 +24,13 @@ export const sendMessage=async(req,res)=>{
        let fileData={};
        if(req.file){
         const fileUrl = transformedFileUrl(req.file);
-        //const signedUrl = generateSignedUrl(req.file.public_id);
+
         fileData = {
           fileUrl, // Cloudinary URL
           fileName: req.file.originalname, // Original file name
           fileType: req.file.mimetype, // MIME type
           fileSize: req.file.size, // File size (optional)
       };}
-      //const finalMessage = message || (req.file ? 'File attached' : null);
-
-      // If both message and file are missing, return an error
-     /* if (!finalMessage && !req.file) {
-          return res.status(400).json({ error: "Message or file is required" });
-      };*/
       let conversation= await Converstaion.findOne({
         participants:{$all:[senderId,receiverId]},
        });

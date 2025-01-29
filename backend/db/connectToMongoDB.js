@@ -5,7 +5,7 @@ try{
     console.log("Connected to MongoDb");
 }
 catch(error){
-    console.log("Error coonecting to MongoDB",error.message);
+    console.log("Error connecting to MongoDB",error.message);
 }
 };
 export default connectToMongoDB;

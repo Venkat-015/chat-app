@@ -14,6 +14,8 @@ router.post("/send/:id",protectRoute,(req,res)=>{
     },
     sendMessage);
 export default router;
+
+
 /*
 
 import express from "express";

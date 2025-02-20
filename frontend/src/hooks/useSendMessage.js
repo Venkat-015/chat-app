@@ -17,6 +17,7 @@ const useSendMessage = () => {
         const res=await fetch(`/api/messages/send/${selectedConversation._id}`,{
             method:'POST',
             body:formData,
+            credentials: 'include',
           });
         const data=await res.json();
         if(data.error) throw new Error(data.error);

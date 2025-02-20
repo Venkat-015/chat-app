@@ -4,15 +4,7 @@ import { getMessage, sendMessage } from "../controllers/message.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 const router=express.Router();
 router.get("/:id",protectRoute,getMessage);
-router.post("/send/:id",protectRoute,(req,res)=>{
-    upload.single('file')(req, res, (err) => {
-        if (err) {
-          return res.status(400).json({ error: err.message });
-        }
-        //next();
-      });
-    },
-    sendMessage);
+router.post("/send/:id", protectRoute, upload.single('file'), sendMessage);
 export default router;
 
 

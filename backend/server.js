@@ -16,7 +16,11 @@ const __dirname=path.resolve();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors());
+app.use(cors({
+  credentials: true,  // Allow credentials (cookies)
+  origin: 'http://localhost:3000',  // Update with your frontend origin
+}));
+
 
 app.use("/api/auth",authRoutes);
 app.use("/api/messages",messageRoutes);
